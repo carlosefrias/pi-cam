@@ -15,7 +15,7 @@ lock = threading.Lock()
 
 app = Flask(__name__)
 
-vs = VideoStream(src=0).start()
+vs = VideoStream(src=2).start()
 time.sleep(2.0)
 
 @app.route("/")
@@ -30,7 +30,7 @@ def detect_motion(frameCount):
     total = 0
     while True:
         frame = vs.read()
-        frame = imutils.resize(frame, width=400)
+        frame = imutils.resize(frame, width=600)
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         gray = cv2.GaussianBlur(gray, (7,7), 0)
         timestamp = datetime.datetime.now()
