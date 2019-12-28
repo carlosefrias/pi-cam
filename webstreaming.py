@@ -1,4 +1,3 @@
-from singlemotiondetection import SingleMotionDetector
 from imutils.video import VideoStream
 import imutils
 from flask import Response, Flask, render_template
@@ -15,7 +14,7 @@ lock = threading.Lock()
 
 app = Flask(__name__)
 
-vs = VideoStream(src=2).start()
+vs = VideoStream(src=0).start()
 time.sleep(2.0)
 
 @app.route("/")
@@ -26,27 +25,14 @@ def index():
 	
 def detect_motion(frameCount):
     global vs, outputFrame, lock
-    md = SingleMotionDetector(accumWeight=0.1)
-    total = 0
     while True:
         frame = vs.read()
-        frame = imutils.resize(frame, width=600)
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        gray = cv2.GaussianBlur(gray, (7,7), 0)
+        frame = imutils.resize(frame, width=600, height=400)
         timestamp = datetime.datetime.now()
-
-        # grab the current timestamp and draw it on the frame
         timestamp = datetime.datetime.now()
         cv2.putText(frame, timestamp.strftime(
             "%A %d %B %Y %I:%M:%S%p"), (10, frame.shape[0] - 10),
-            cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)
-        if total > frameCount:
-            motion = md.detect(gray)
-            if motion is not None:
-                (thres, (minX, minY, maxX, maxY)) = motion
-                cv2.rectangle(frame, (minX, minY), (maxX, maxY), (0,0,255), 2)
-        md.update(gray)
-        total += 1
+            cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 1)
         with lock:
             outputFrame = frame.copy()
 
@@ -106,29 +92,3 @@ if __name__ == '__main__':
  
 # release the video stream pointer
 vs.stop()
-
-
-
-# cap = cv2.VideoCapture(0)
-# while(True):
-#     # Capture frame-by-frame
-#     ret, frame = cap.read()
-
-#     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-#     gray = cv2.GaussianBlur(gray, (7, 7), 0)
-
-#     # grab the current timestamp and draw it on the frame
-#     timestamp = datetime.datetime.now()
-#     cv2.putText(gray, timestamp.strftime(
-#         "%A %d %B %Y %I:%M:%S%p"), (10, frame.shape[0] - 10),
-#         cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)
-
-
-#     # Display the resulting frame
-#     cv2.imshow('frame', gray)
-#     if cv2.waitKey(1) & 0xFF == ord('q'):
-#         break
-
-# # When everything done, release the capture
-# cap.release()
-# cv2.destroyAllWindows()
